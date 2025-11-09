@@ -897,7 +897,38 @@ function playGalaxyAudio() {
   }
 }
 // Khởi tạo preload ban đầu (giữ hành vi cũ)
-preloadGalaxyAudio();
+// ...existing code...
+function onCanvasClick(event) {
+  if (introStarted) return;
+
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObject(planet);
+  if (intersects.length > 0) {
+    requestFullScreen();
+    introStarted = true;
+    fadeInProgress = true;
+    document.body.classList.add("intro-started");
+
+    // TẠI ĐÂY: tạo/preload audio trong ngữ cảnh user gesture (tốt cho mobile)
+    if (!galaxyAudio) {
+      preloadGalaxyAudio(Math.floor(Math.random() * audioSources.length));
+    }
+
+    // Gọi play ngay trong sự kiện click của người dùng
+    playGalaxyAudio();
+
+    startCameraAnimation();
+
+    if (starField && starField.geometry) {
+      starField.geometry.setDrawRange(0, originalStarCount);
+    }
+  }
+}
+// ...existing code...
 // ...existing code...
 
 
